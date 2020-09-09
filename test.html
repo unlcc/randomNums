@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>money</title>
+  <style>
+    .red-nums {
+      color: red;
+      margin-right: 10px;
+    }
+    .blue-nums {
+      color: blue;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+
+  </div>
+</body>
+<script>
+  const numObj = {
+    '第一组': [],
+    '第二组': [],
+    '第三组': [],
+    '第四组': [],
+    '第五组': [],
+  };
+
+  const redNums = [];
+  const blueNums = [];
+  for(let i = 1; i < 34; i ++) {
+    redNums.push(i);
+    i < 17 && blueNums.push(i);
+  }
+
+  function genMyNum (key) {
+    let redCount = 0;
+    let result = [[], 0];
+    
+    // gen red Num
+    while(redCount < 6) {
+      let num = Math.floor(Math.random() * (33 - 1 + 1) + 1);
+      if (result[0].indexOf(num) === -1) {
+        result[0].push(num);
+        redCount++; 
+      }
+      // 判断数字分区是否合理,不合理重新生成
+      if (redCount === 6 && !checkNum(result[0], key)) {
+        redCount = 0;
+        result[0] = [];  
+      }
+    }
+    result[0].sort((a, b) => {
+      return a - b;
+    });
+
+    // gen blue Num
+    result[1] = Math.floor(Math.random() * (16 - 1 + 1) + 1);
+
+    return result;
+  } 
+
+
+  function checkNum (arr, key) {
+    arr.sort((a,b) => {
+      return a-b;
+    });
+    let strategies = {
+      "3": function (arr) {
+        let areaCount = [0, 0, 0];
+        arr.forEach((item) => {
+          //三区：1-11,12-22,23-33
+          if (item <= 11) {
+            areaCount[0]++;
+          } else if (item > 11 && item <= 22) {
+            areaCount[1]++;
+          } else {
+            areaCount[2]++;
+          }
+        })
+        if (areaCount.some(item => item > 2)) {
+          return false;
+        }
+        return true;
+      },
+      "4": function (arr) {
+        let areaCount = [0, 0, 0, 0];
+        arr.forEach((item) => {
+          //四区：1-8, 9-16， 17， 18-25， 26-33
+          if (item !== 17) {
+            if (item <= 8) {
+              areaCount[0]++;
+            } else if (item > 8 && item <= 16) {
+              areaCount[1]++;
+            } else if (item >= 18 && item < 25) {
+              areaCount[2]++;
+            } else {
+              areaCount[3]++;
+            }
+          }
+        })
+        if (areaCount.some(item => item > 2) || count0(areaCount) > 1) {
+          return false;
+        }
+        return true;  
+      },  
+      "7": function (arr) {
+        let areaCount = [0, 0, 0, 0, 0, 0, 0];
+        arr.forEach((item) => {
+          //7区
+          if (item <= 5) {
+            areaCount[0]++;
+          } else if (item > 5 && item <= 10) {
+            areaCount[1]++;
+          } else if (item > 10 && item <= 15) {
+            areaCount[2]++;
+          } else if (item > 15 && item <= 20) {
+            areaCount[3]++;
+          } else if (item > 20 && item <= 25) {
+            areaCount[4]++;
+          } else if (item > 25 && item <= 30) {
+            areaCount[5]++;
+          } else if (item > 39 && item <= 33) {
+            areaCount[6]++;
+          }
+        })
+        if (areaCount.some(item => item > 2) || count0(areaCount) > 2) {
+          return false;
+        }
+        return true; 
+      }
+    };
+    return (strategies['3'](arr) || strategies['4'](arr) || strategies['7'](arr));
+  }
+
+  function count0 (arr) {
+    let res = 0;
+    arr.forEach((item) => {
+      if (item === 0) {
+        res++;
+      }
+    })
+    return res;
+  }
+
+  for(let key in numObj) {
+    numObj[key] = genMyNum(key);
+  }
+
+  console.log(numObj)
+
+  const root = document.getElementById('app');
+  for(let key in numObj) {
+    let child = document.createElement("div");
+    let redNums = document.createElement("span");
+    let blueNums = document.createElement("span");
+    let redText = document.createTextNode(numObj[key][0].join(', '));
+    let blueText = document.createTextNode(numObj[key][1]);
+    let redAttribute = document.createAttribute('class');
+    let blueAttribute = document.createAttribute('class');
+    redAttribute.value = 'red-nums';
+    blueAttribute.value = 'blue-nums';
+    redNums.appendChild(redText);
+    redNums.setAttributeNode(redAttribute);
+    blueNums.appendChild(blueText);
+    blueNums.setAttributeNode(blueAttribute);
+    child.appendChild(redNums);
+    child.appendChild(blueNums);
+    root.appendChild(child);
+  }
+</script>
+</html>
